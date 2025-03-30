@@ -79,7 +79,7 @@ export default function Home() {
       <div className="min-h-screen relative">
         <ThemeToggle />
         <main className="p-8">
-          <h1 className="text-3xl font-bold mb-6">User Management Dashboard</h1>
+          
           <UserDashboard initialUsers={initialUsers} />
         </main>
       </div>
