@@ -1,5 +1,7 @@
+// context/ThemeContext.tsx
 "use client";
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, { createContext, useContext, ReactNode, useEffect, useState } from "react";
+import useLocalStorage from "./useLocalStorage";
 
 type Theme = "light" | "dark";
 
@@ -11,10 +13,24 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>("light");
+  // Flag to track if the component has mounted on the client
+  const [mounted, setMounted] = useState(false);
+
+  // Use localStorage to persist theme value
+  const [theme, setTheme] = useLocalStorage<Theme>("theme", "light");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    setTheme(theme === "light" ? "dark" : "light");
   };
+
+  // Until the client mounts, render a fallback to avoid hydration mismatch.
+  if (!mounted) {
+    return <div className="theme-light" />;
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
@@ -27,6 +43,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  if (!context) throw new Error("useTheme must be used within a ThemeProvider");
+  if (!context) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
   return context;
 };

@@ -1,3 +1,4 @@
+// UserDashboard.tsx
 "use client";
 import { useState, useEffect } from "react";
 import UserList from "./UserList";
@@ -12,22 +13,25 @@ interface UserDashboardProps {
 }
 
 const UserDashboard: React.FC<UserDashboardProps> = ({ initialUsers }) => {
-  const [users, setUsers] = useState<IUser[]>([]);
+  // Initialize with initialUsers rather than an empty array
+  const [users, setUsers] = useState<IUser[]>(initialUsers);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [editingUser, setEditingUser] = useState<IUser | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
   const [confirmDelete, setConfirmDelete] = useState<{ show: boolean; userId: number | null }>({ show: false, userId: null });
 
-  // Load users from local storage or use the initial data
+  // Check localStorage only on mount
   useEffect(() => {
     const storedUsers = localStorage.getItem("users");
     if (storedUsers) {
-      setUsers(JSON.parse(storedUsers));
-    } else {
-      setUsers(initialUsers);
+      const parsedUsers = JSON.parse(storedUsers);
+      // If stored data is not empty, use it; otherwise, keep initialUsers
+      if (parsedUsers.length > 0) {
+        setUsers(parsedUsers);
+      }
     }
-  }, [initialUsers]);
+  }, []);
 
   // Persist users to local storage whenever they change
   useEffect(() => {
