@@ -21,19 +21,29 @@ interface UserDashboardProps {
   onFormVisibilityChange: (visible: boolean) => void;
 }
 
-const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange, onFormVisibilityChange }) => {
+const UserDashboard: React.FC<UserDashboardProps> = ({
+  users,
+  onUsersChange,
+  onFormVisibilityChange,
+}) => {
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [editingUser, setEditingUser] = useState<IUser | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
-  const [confirmDelete, setConfirmDelete] = useState<{ show: boolean; userId: number | null }>({
+  const [confirmDelete, setConfirmDelete] = useState<{
+    show: boolean;
+    userId: number | null;
+  }>({
     show: false,
     userId: null,
   });
   const [usingFetchedData, setUsingFetchedData] = useState(false);
-  const { data: fetchedUsers, loading: fetchLoading, error: fetchError, refetch } = useFetch<FetchedUser[]>(
-    "https://jsonplaceholder.typicode.com/users"
-  );
+  const {
+    data: fetchedUsers,
+    loading: fetchLoading,
+    error: fetchError,
+    refetch,
+  } = useFetch<FetchedUser[]>("https://jsonplaceholder.typicode.com/users");
   const isMainPage = !showForm && !selectedUser;
 
   // Notify the parent about the form's visibility state
@@ -124,23 +134,40 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange, onF
           <h1 className="text-2xl font-bold">User Management Dashboard</h1>
           {isMainPage && (
             <div className="flex gap-2 flex-wrap">
-              <button onClick={toggleViewMode} className="bg-gray-600 text-white px-4 py-2 rounded">
+              <button
+                onClick={toggleViewMode}
+                className="bg-gray-600 dark:bg-gray-700 text-white px-4 py-2 rounded"
+              >
                 {viewMode === "card" ? "Switch to List View" : "Switch to Card View"}
               </button>
-              <button onClick={handleAddUser} className="bg-green-500 text-white px-4 py-2 rounded">
+              <button
+                onClick={handleAddUser}
+                className="bg-green-500 dark:bg-green-600 text-white px-4 py-2 rounded"
+              >
                 Add User
               </button>
               {!usingFetchedData && (
-                <button onClick={handleRefresh} className="bg-blue-500 text-white px-4 py-2 rounded" disabled={fetchLoading}>
-                  Refresh
+                <button
+                  onClick={handleRefresh}
+                  className="bg-blue-500 dark:bg-blue-600 text-white px-4 py-2 rounded"
+                  disabled={fetchLoading}
+                >
+                  {fetchLoading ? "Loading..." : "Refresh"}
                 </button>
               )}
               {usingFetchedData && (
                 <>
-                  <button onClick={handleRefresh} className="bg-blue-500 text-white px-4 py-2 rounded" disabled={fetchLoading}>
+                  <button
+                    onClick={handleRefresh}
+                    className="bg-blue-500 dark:bg-blue-600 text-white px-4 py-2 rounded"
+                    disabled={fetchLoading}
+                  >
                     {fetchLoading ? "Loading..." : "Refresh"}
                   </button>
-                  <button onClick={handleBackToOriginal} className="bg-gray-700 text-white px-4 py-2 rounded">
+                  <button
+                    onClick={handleBackToOriginal}
+                    className="bg-gray-700 dark:bg-gray-800 text-white px-4 py-2 rounded"
+                  >
                     Back to Original
                   </button>
                 </>
@@ -148,7 +175,10 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange, onF
             </div>
           )}
           {!isMainPage && (
-            <button onClick={handleAddUser} className="bg-green-500 text-white px-4 py-2 rounded">
+            <button
+              onClick={handleAddUser}
+              className="bg-green-500 dark:bg-green-600 text-white px-4 py-2 rounded"
+            >
               Add User
             </button>
           )}
@@ -157,11 +187,19 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange, onF
       <AnimatePresence mode="wait">
         {showForm ? (
           <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <UserForm initialData={editingUser || undefined} onSubmit={handleFormSubmit} onCancel={handleCancelForm} />
+            <UserForm
+              initialData={editingUser || undefined}
+              onSubmit={handleFormSubmit}
+              onCancel={handleCancelForm}
+            />
           </motion.div>
         ) : selectedUser ? (
           <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <UserProfile user={selectedUser} onEdit={handleEditUser} onBack={() => setSelectedUser(null)} />
+            <UserProfile
+              user={selectedUser}
+              onEdit={handleEditUser}
+              onBack={() => setSelectedUser(null)}
+            />
           </motion.div>
         ) : (
           <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -172,9 +210,12 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange, onF
                 {!fetchLoading && !fetchError && fetchedUsers && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {fetchedUsers.map((user) => (
-                      <div key={user.id} className="p-4 border rounded shadow-md bg-white">
-                        <h2 className="text-xl font-bold mb-2">{user.name}</h2>
-                        <p className="text-gray-600">
+                      <div
+                        key={user.id}
+                        className="p-4 border border-gray-300 dark:border-gray-700 rounded shadow-md bg-white dark:bg-gray-900 dark:text-white"
+                      >
+                        <h2 className="text-xl text-gray-600 dark:text-gray-300 font-bold mb-2">{user.name}</h2>
+                        <p className="text-gray-600 dark:text-gray-300">
                           <span className="font-semibold">Email:</span> {user.email}
                         </p>
                       </div>
