@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "./AuthContext";
 import { ThemeProvider, useTheme } from "./ThemeContext";
 import UserDashboard from "./UserDashboard";
 import LoginPage from "./LoginPage";
+import TodoApp from "./TodoApp";
 import { IUser } from "./types";
 import { useState } from "react";
 
@@ -64,7 +65,7 @@ const initialUsers: IUser[] = [
   },
 ];
 
-function Header() {
+function Header({ onToggleTodo }: { onToggleTodo: () => void }) {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
 
@@ -72,6 +73,9 @@ function Header() {
     <header className="absolute top-4 right-4 flex gap-2 z-50">
       <button onClick={toggleTheme} className="bg-gray-700 text-white px-4 py-2 rounded">
         {theme === "light" ? "Dark Mode" : "Light Mode"}
+      </button>
+      <button onClick={onToggleTodo} className="bg-blue-500 text-white px-4 py-2 rounded">
+        To Do List
       </button>
       {user && (
         <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded">
@@ -85,18 +89,27 @@ function Header() {
 function MainContent() {
   const [users, setUsers] = useState<IUser[]>(initialUsers);
   const { user } = useAuth();
+  const [showTodo, setShowTodo] = useState(false);
 
   return (
     <ThemeProvider>
       <div className="min-h-screen relative">
-        <Header />
+        {/* Header is always visible */}
+        <Header onToggleTodo={() => setShowTodo((prev) => !prev)} />
+        {/* Add top padding so content doesn't hide behind header */}
         <div className="pt-20">
           {!user ? (
             <LoginPage users={users} />
           ) : (
-            <main className="p-8">
-              <UserDashboard users={users} onUsersChange={setUsers} />
-            </main>
+            showTodo ? (
+              <main className="p-8">
+                <TodoApp />
+              </main>
+            ) : (
+              <main className="p-8">
+                <UserDashboard users={users} onUsersChange={setUsers} />
+              </main>
+            )
           )}
         </div>
       </div>
