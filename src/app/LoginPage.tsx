@@ -20,7 +20,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ users }) => {
       : "border p-2 rounded w-full bg-white text-black placeholder-gray-500";
 
   const validate = (values: { email: string; password: string }) => {
-    const errors: any = {};
+    const errors: { email?: string; password?: string } = {};
     if (!values.email) errors.email = "Required";
     if (!values.password) errors.password = "Required";
     return errors;
@@ -32,7 +32,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ users }) => {
   );
 
   const submitHandler = async (vals: { email: string; password: string }) => {
-    // All users share the same password "12345"
     const user = users.find((u) => u.email === vals.email);
     if (!user || !user.isActive || vals.password !== "12345") {
       alert("Invalid credentials");
@@ -46,11 +45,25 @@ const LoginPage: React.FC<LoginPageProps> = ({ users }) => {
       <form onSubmit={(e) => handleSubmit(e, submitHandler)} className={`p-8 rounded shadow-md space-y-4 w-full max-w-md ${formBg} ${textClass}`}>
         <h2 className="text-2xl font-bold">Login</h2>
         <div>
-          <input type="email" name="email" placeholder="Email" value={values.email} onChange={handleChange} className={inputClass} />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={values.email}
+            onChange={handleChange}
+            className={inputClass}
+          />
           {touched.email && errors.email && <div className="text-red-500 text-sm">{errors.email}</div>}
         </div>
         <div>
-          <input type="password" name="password" placeholder="Password" value={values.password} onChange={handleChange} className={inputClass} />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={values.password}
+            onChange={handleChange}
+            className={inputClass}
+          />
           {touched.password && errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
         </div>
         <button type="submit" disabled={isSubmitting} className="bg-blue-500 text-white px-4 py-2 rounded w-full">
