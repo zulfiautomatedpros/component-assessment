@@ -1,4 +1,4 @@
-
+"use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 interface UseFetchResult<T> {
@@ -8,8 +8,7 @@ interface UseFetchResult<T> {
   refetch: () => void;
 }
 
-function useFetch<T = any>(url: string, options: RequestInit = {}): UseFetchResult<T> {
-  // Memoize the options to prevent re-creation on each render.
+function useFetch<T>(url: string, options: RequestInit = {}): UseFetchResult<T> {
   const stableOptions = useMemo(() => options, [JSON.stringify(options)]);
   
   const [data, setData] = useState<T | null>(null);
@@ -17,7 +16,6 @@ function useFetch<T = any>(url: string, options: RequestInit = {}): UseFetchResu
   const [error, setError] = useState<Error | null>(null);
 
   const fetchData = useCallback(async () => {
-    console.log("Fetching data from:", url);
     setLoading(true);
     setError(null);
     try {
@@ -26,11 +24,10 @@ function useFetch<T = any>(url: string, options: RequestInit = {}): UseFetchResu
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
       const json = await response.json();
-      console.log("Fetched data:", json);
       setData(json);
-    } catch (err: any) {
-      console.error("Fetch error:", err);
-      setError(err);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error("An unknown error occurred");
+      setError(error);
     } finally {
       setLoading(false);
     }
@@ -46,6 +43,5 @@ function useFetch<T = any>(url: string, options: RequestInit = {}): UseFetchResu
 
   return { data, loading, error, refetch };
 }
-
 
 export default useFetch;

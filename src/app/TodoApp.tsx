@@ -18,22 +18,24 @@ export interface ITodo {
   status: "Completed" | "Yet To Do" | "In Progress" | "Halted";
 }
 
+// Define a type for the fetched todo items from the API
+interface FetchedTodo {
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
 const TodoApp: React.FC = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
-  // Persist todos in localStorage
   const [todos, setTodos] = useLocalStorage<ITodo[]>("todos", []);
-  // Load initial todos from API
-  const { data: fetchedTodos, loading, error } = useFetch<any>(
-    "https://jsonplaceholder.typicode.com/todos"
-  );
+  const { data: fetchedTodos, loading, error } = useFetch<FetchedTodo[]>("https://jsonplaceholder.typicode.com/todos");
   const [showForm, setShowForm] = useState(false);
   const [editingTodo, setEditingTodo] = useState<ITodo | null>(null);
 
-  // On first load, if no todos exist, initialize from API (limit to first 10)
   useEffect(() => {
     if (fetchedTodos && fetchedTodos.length > 0 && todos.length === 0) {
-      const initialTodos: ITodo[] = fetchedTodos.slice(0, 10).map((todo: any) => ({
+      const initialTodos: ITodo[] = fetchedTodos.slice(0, 10).map((todo) => ({
         id: todo.id,
         title: todo.title,
         description: "", // API doesn't provide description
@@ -44,7 +46,8 @@ const TodoApp: React.FC = () => {
       }));
       setTodos(initialTodos);
     }
-  }, [fetchedTodos]);
+    // Including todos.length and setTodos in dependency array
+  }, [fetchedTodos, todos.length, setTodos]);
 
   const handleAdd = () => {
     setEditingTodo(null);

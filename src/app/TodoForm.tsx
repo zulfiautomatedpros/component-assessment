@@ -4,6 +4,14 @@ import React from "react";
 import useForm from "./useForm";
 import { ITodo } from "./TodoApp";
 
+interface TodoFormValues {
+  title: string;
+  description: string;
+  dueDate: string;
+  category: string;
+  priority: "Low" | "Medium" | "High";
+}
+
 interface TodoFormProps {
   initialData?: Partial<ITodo>;
   onSubmit: (data: Partial<ITodo>) => void;
@@ -11,20 +19,20 @@ interface TodoFormProps {
 }
 
 const TodoForm: React.FC<TodoFormProps> = ({ initialData, onSubmit, onCancel }) => {
-  const validate = (values: any) => {
-    const errors: any = {};
+  const validate = (values: TodoFormValues): Partial<TodoFormValues> => {
+    const errors: Partial<TodoFormValues> = {};
     if (!values.title) errors.title = "Title is required";
     if (!values.dueDate) errors.dueDate = "Due date is required";
     return errors;
   };
 
-  const { values, errors, touched, handleChange, handleSubmit, isSubmitting } = useForm(
+  const { values, errors, touched, handleChange, handleSubmit, isSubmitting } = useForm<TodoFormValues>(
     {
       title: initialData?.title || "",
       description: initialData?.description || "",
       dueDate: initialData?.dueDate || "",
       category: initialData?.category || "",
-      priority: initialData?.priority || "Medium",
+      priority: (initialData?.priority as "Low" | "Medium" | "High") || "Medium",
     },
     validate
   );
