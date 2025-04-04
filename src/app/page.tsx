@@ -65,7 +65,15 @@ const initialUsers: IUser[] = [
   },
 ];
 
-function Header({ onToggleTodo }: { onToggleTodo: () => void }) {
+function Header({
+  onToggleTodo,
+  todoButtonLabel,
+  showTodoButton,
+}: {
+  onToggleTodo: () => void;
+  todoButtonLabel: string;
+  showTodoButton: boolean;
+}) {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
 
@@ -74,9 +82,11 @@ function Header({ onToggleTodo }: { onToggleTodo: () => void }) {
       <button onClick={toggleTheme} className="bg-gray-700 text-white px-4 py-2 rounded">
         {theme === "light" ? "Dark Mode" : "Light Mode"}
       </button>
-      <button onClick={onToggleTodo} className="bg-blue-500 text-white px-4 py-2 rounded">
-        To Do List
-      </button>
+      {showTodoButton && (
+        <button onClick={onToggleTodo} className="bg-blue-500 text-white px-4 py-2 rounded">
+          {todoButtonLabel}
+        </button>
+      )}
       {user && (
         <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded">
           Logout
@@ -90,26 +100,36 @@ function MainContent() {
   const [users, setUsers] = useState<IUser[]>(initialUsers);
   const { user } = useAuth();
   const [showTodo, setShowTodo] = useState(false);
+  const [showUserForm, setShowUserForm] = useState(false);
+
+  // Set the button label based on whether the Todo list is active
+  const todoButtonLabel = showTodo ? "Back to Dashboard" : "To Do List";
+  // Hide the Todo button on the login screen and when the Add User Form is visible
+  const showTodoButton = !!user && !showUserForm;
 
   return (
     <ThemeProvider>
       <div className="min-h-screen relative">
-        {/* Header is always visible */}
-        <Header onToggleTodo={() => setShowTodo((prev) => !prev)} />
-        {/* Add top padding so content doesn't hide behind header */}
+        <Header 
+          onToggleTodo={() => setShowTodo((prev) => !prev)}
+          todoButtonLabel={todoButtonLabel}
+          showTodoButton={showTodoButton}
+        />
         <div className="pt-20">
           {!user ? (
             <LoginPage users={users} />
+          ) : showTodo ? (
+            <main className="p-8">
+              <TodoApp />
+            </main>
           ) : (
-            showTodo ? (
-              <main className="p-8">
-                <TodoApp />
-              </main>
-            ) : (
-              <main className="p-8">
-                <UserDashboard users={users} onUsersChange={setUsers} />
-              </main>
-            )
+            <main className="p-8">
+              <UserDashboard 
+                users={users} 
+                onUsersChange={setUsers} 
+                onFormVisibilityChange={setShowUserForm}
+              />
+            </main>
           )}
         </div>
       </div>

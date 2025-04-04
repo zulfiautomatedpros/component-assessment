@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UserList from "./UserList";
 import UserProfile from "./UserProfile";
 import UserForm from "./UserForm";
@@ -18,9 +18,10 @@ interface FetchedUser {
 interface UserDashboardProps {
   users: IUser[];
   onUsersChange: (users: IUser[]) => void;
+  onFormVisibilityChange: (visible: boolean) => void;
 }
 
-const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange }) => {
+const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange, onFormVisibilityChange }) => {
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [editingUser, setEditingUser] = useState<IUser | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -30,16 +31,15 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange }) =
     userId: null,
   });
   const [usingFetchedData, setUsingFetchedData] = useState(false);
-
-  // Use the FetchedUser interface here to type the fetched data
-  const {
-    data: fetchedUsers,
-    loading: fetchLoading,
-    error: fetchError,
-    refetch,
-  } = useFetch<FetchedUser[]>("https://jsonplaceholder.typicode.com/users");
-
+  const { data: fetchedUsers, loading: fetchLoading, error: fetchError, refetch } = useFetch<FetchedUser[]>(
+    "https://jsonplaceholder.typicode.com/users"
+  );
   const isMainPage = !showForm && !selectedUser;
+
+  // Notify the parent about the form's visibility state
+  useEffect(() => {
+    onFormVisibilityChange(showForm);
+  }, [showForm, onFormVisibilityChange]);
 
   const toggleViewMode = () => {
     setViewMode((prev) => (prev === "card" ? "list" : "card"));
@@ -116,7 +116,6 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange }) =
   const handleBackToOriginal = () => {
     setUsingFetchedData(false);
   };
-
 
   return (
     <div className="p-4 md:p-8 space-y-6">
