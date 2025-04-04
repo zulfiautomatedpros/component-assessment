@@ -1,25 +1,27 @@
 "use client";
-import { useState } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 
-function useForm(initialValues: any, validate?: (values: any) => any) {
-  const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState<any>({});
-  const [touched, setTouched] = useState<any>({});
+function useForm<T>(initialValues: T, validate?: (values: T) => Partial<T>) {
+  const [values, setValues] = useState<T>(initialValues);
+  const [errors, setErrors] = useState<Partial<T>>({});
+  const [touched, setTouched] = useState<Partial<Record<keyof T, boolean>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setValues((prev: any) => ({ ...prev, [name]: value }));
-    setTouched((prev: any) => ({ ...prev, [name]: true }));
+    setValues((prev) => ({ ...prev, [name]: value }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
-  const handleSubmit = async (e: React.FormEvent, onSubmit: (values: any) => Promise<void> | void) => {
+  const handleSubmit = async (
+    e: FormEvent,
+    onSubmit: (values: T) => Promise<void> | void
+  ) => {
     e.preventDefault();
-    let validationErrors = {};
-    if (validate) {
-      validationErrors = validate(values);
-      setErrors(validationErrors);
-    }
+    const validationErrors = validate ? validate(values) : {};
+    setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
       return;
     }

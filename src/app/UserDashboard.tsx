@@ -8,6 +8,13 @@ import { IUser } from "./types";
 import { motion, AnimatePresence } from "framer-motion";
 import useFetch from "./useFetch";
 
+// Define a type for the fetched users (only the fields available from the API)
+interface FetchedUser {
+  id: number;
+  name: string;
+  email: string;
+}
+
 interface UserDashboardProps {
   users: IUser[];
   onUsersChange: (users: IUser[]) => void;
@@ -23,9 +30,15 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange }) =
     userId: null,
   });
   const [usingFetchedData, setUsingFetchedData] = useState(false);
-  const { data: fetchedUsers, loading: fetchLoading, error: fetchError, refetch } = useFetch<IUser[]>(
-    "https://jsonplaceholder.typicode.com/users"
-  );
+
+  // Use the FetchedUser interface here to type the fetched data
+  const {
+    data: fetchedUsers,
+    loading: fetchLoading,
+    error: fetchError,
+    refetch,
+  } = useFetch<FetchedUser[]>("https://jsonplaceholder.typicode.com/users");
+
   const isMainPage = !showForm && !selectedUser;
 
   const toggleViewMode = () => {
@@ -165,25 +178,6 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ users, onUsersChange }) =
                         <h2 className="text-xl font-bold mb-2">{user.name}</h2>
                         <p className="text-gray-600">
                           <span className="font-semibold">Email:</span> {user.email}
-                        </p>
-                        <p className="text-gray-600">
-                          <span className="font-semibold">Username:</span> {user.username}
-                        </p>
-                        <p className="text-gray-600">
-                          <span className="font-semibold">Phone:</span> {user.phone}
-                        </p>
-                        <p className="text-gray-600">
-                          <span className="font-semibold">Website:</span> {user.website}
-                        </p>
-                        <div className="mt-2">
-                          <p>
-                            <span className="font-semibold">Company:</span> {user.company.name}
-                          </p>
-                          <p className="text-sm text-gray-500">{user.company.catchPhrase}</p>
-                        </div>
-                        <p className="mt-2">
-                          <span className="font-semibold">Address:</span>{" "}
-                          {user.address.street}, {user.address.suite}, {user.address.city}, {user.address.zipcode}
                         </p>
                       </div>
                     ))}
