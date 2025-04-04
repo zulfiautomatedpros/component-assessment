@@ -1,7 +1,10 @@
 "use client";
+import { AuthProvider, useAuth } from "./AuthContext";
 import { ThemeProvider, useTheme } from "./ThemeContext";
 import UserDashboard from "./UserDashboard";
+import LoginPage from "./LoginPage";
 import { IUser } from "./types";
+import { useState } from "react";
 
 const initialUsers: IUser[] = [
   {
@@ -61,28 +64,49 @@ const initialUsers: IUser[] = [
   },
 ];
 
-function ThemeToggle() {
+function Header() {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
   return (
-    <button
-      onClick={toggleTheme}
-      className="absolute top-4 right-4 bg-gray-700 text-white px-4 py-2 rounded"
-    >
-      {theme === "light" ? "Dark Mode" : "Light Mode"}
-    </button>
+    <header className="absolute top-4 right-4 flex gap-2">
+      <button onClick={toggleTheme} className="bg-gray-700 text-white px-4 py-2 rounded">
+        {theme === "light" ? "Dark Mode" : "Light Mode"}
+      </button>
+      {user && (
+        <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded">
+          Logout
+        </button>
+      )}
+    </header>
   );
 }
 
-export default function Home() {
+function MainContent() {
+  // Lift the users state here to share it between LoginPage and UserDashboard
+  const [users, setUsers] = useState<IUser[]>(initialUsers);
+  const { user } = useAuth();
+
   return (
     <ThemeProvider>
       <div className="min-h-screen relative">
-        <ThemeToggle />
-        <main className="p-8">
-          
-          <UserDashboard initialUsers={initialUsers} />
-        </main>
+        <Header />
+        {!user ? (
+          // Remove the onLogin prop; LoginPage will use the useAuth hook to log in.
+          <LoginPage users={users} />
+        ) : (
+          <main className="p-8">
+            <UserDashboard users={users} onUsersChange={setUsers} />
+          </main>
+        )}
       </div>
     </ThemeProvider>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <AuthProvider>
+      <MainContent />
+    </AuthProvider>
   );
 }
